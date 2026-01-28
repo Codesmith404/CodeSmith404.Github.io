@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Local Quiz</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="container" id="quiz-container">
+        <h1>Quiz Time</h1>
+        <div class="progress">Question <span id="current-q">1</span> of <span id="total-q">0</span></div>
+        
+        <div class="question-text" id="question">Loading...</div>
+        
+        <div class="options-grid" id="options">
+            <!-- Options injected here -->
+        </div>
+
+        <div class="controls">
+            <span id="feedback"></span>
+            <button class="next-btn" id="next-btn" onclick="nextQuestion()">Next Question</button>
+        </div>
+    </div>
+
+    <div class="container score-section" id="score-container">
+        <h1>Quiz Completed!</h1>
+        <p>You scored</p>
+        <div class="score-number" id="final-score">0</div>
+        <p>out of <span id="total-score">0</span></p>
+        <button class="next-btn" style="display:inline-block; margin-top:20px;" onclick="location.reload()">Restart</button>
+    </div>
+
+    <!-- THIS IS WHERE YOUR DATA GOES -->
+    <script src="questions2.js"></script>
+
+    <script>
+        let currentQuestionIndex = 0;
+        let score = 0;
+        
+        // Use the variable 'quizData' from questions.js
+        const totalQuestions = quizData.length;
+        document.getElementById('total-q').innerText = totalQuestions;
+        document.getElementById('total-score').innerText = totalQuestions;
+
+        const questionEl = document.getElementById('question');
+        const optionsEl = document.getElementById('options');
+        const nextBtn = document.getElementById('next-btn');
+
+        function loadQuestion() {
+            const currentData = quizData[currentQuestionIndex];
+            questionEl.innerText = currentData.question;
+            optionsEl.innerHTML = '';
+            nextBtn.style.display = 'none';
+
+            // Create buttons
+            currentData.options.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.innerText = opt;
+                btn.onclick = () => checkAnswer(btn, index, currentData.correctIndex);
+                optionsEl.appendChild(btn);
+            });
+
+            document.getElementById('current-q').innerText = currentQuestionIndex + 1;
+        }
+
+        function checkAnswer(selectedBtn, selectedIndex, correctIndex) {
+            // Disable all buttons
+            const buttons = optionsEl.querySelectorAll('.option-btn');
+            buttons.forEach(btn => btn.disabled = true);
+
+            if (selectedIndex === correctIndex) {
+                selectedBtn.classList.add('correct');
+                score++;
+            } else {
+                selectedBtn.classList.add('wrong');
+                // Highlight the correct one
+                buttons[correctIndex].classList.add('correct');
+            }
+
+            nextBtn.style.display = 'block';
+        }
+
+        function nextQuestion() {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < totalQuestions) {
+                loadQuestion();
+            } else {
+                showScore();
+            }
+        }
+
+        function showScore() {
+            document.getElementById('quiz-container').style.display = 'none';
+            document.getElementById('score-container').style.display = 'block';
+            document.getElementById('final-score').innerText = score;
+        }
+
+        // Start
+        loadQuestion();
+    </script>
+</body>
+</html>
